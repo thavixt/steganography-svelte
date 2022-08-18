@@ -1,6 +1,9 @@
 {
-	"name": "my-app",
-	"version": "0.0.1",
+	"name": "steganography-svelte",
+	"version": "0.1.0",
+    "repository": "https://github.com/thavixt/steganography-svelte",
+    "homepage": "https://thavixt.github.io/steganography-svelte",
+    "license": "MIT",
 	"scripts": {
 		"dev": "svelte-kit dev",
 		"build": "svelte-kit build",
