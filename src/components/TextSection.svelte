@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
     import Button from '../components/common/Button.svelte';
 	import Icon from '../components/common/Icon.svelte';
+	import notify from '../logic/notify';
 
     export let input = false;
     export let output = false;
     
-	import { createEventDispatcher } from 'svelte';
 	interface DispatchEvents {
 		onTextInput: TextData | null;
 	}
@@ -43,7 +44,7 @@
                 };
                 dispatch('onTextInput', textData);
             } else {
-                console.error('Error while reading file', {file, textContent});
+                notify.error(StegoError.READ_FILE);
             }
         }
         reader.readAsText(file);
@@ -51,7 +52,6 @@
 
     function onChange(e: any) {
         if (e.target) {
-            console.log(e.target.value);
             currentText = e.target.value;
             const encoder = new TextEncoder();
             const textData: TextData = {
@@ -64,7 +64,7 @@
 
     const downloadText = async () => {
         if (!currentText) {
-            console.error('No text present to download!')
+            notify.error(StegoError.NOTHING_TO_DL)
             return;
         }
         var link = document.createElement('a');
@@ -91,18 +91,22 @@
 	};
 </script>
 
-<div class="flex flex-col justify-center items-center my-2">
-    <textarea 
-        class="border-2 mb-2 p-2 h-[170px] w-[320px] bg-white text-sm font-mono" 
-        bind:this={textArea} 
-        on:change={onChange}
-    />
-    {#if input}
-	    <input class="w-full" on:input={onInput} type="file" />
-    {/if}
-    {#if output}
-	    <Button style="w-full mt-4" onClick={downloadText} disabled={!currentText}>
-            Download <Icon icon="dl"/>
-        </Button>
-    {/if}
+<div class="flex flex-col space-y-2 my-2">
+    <slot/>
+    <slot name="description"/>
+    <div class="flex flex-col justify-center items-center">
+        <textarea 
+            class="border-2 mb-2 p-2 h-[170px] w-[320px] bg-white text-sm font-mono" 
+            bind:this={textArea} 
+            on:change={onChange}
+        />
+        {#if input}
+            <input class="w-full" on:input={onInput} type="file" />
+        {/if}
+        {#if output}
+            <Button style="w-full mt-4" onClick={downloadText} disabled={!currentText}>
+                Download <Icon icon="dl"/>
+            </Button>
+        {/if}
+    </div>
 </div>

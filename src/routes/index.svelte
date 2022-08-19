@@ -7,9 +7,9 @@
 </script>
 
 <div class="space-y-8 max-w-6xl">
+    <Heading>Digital steganography</Heading>
 	<div class="grid md:grid-cols-2 grid-cols-1 gap-x-12 gap-y-0">
 		<Box>
-			<Heading>Digital steganography</Heading>
 			<p>
 				Steganography includes the concealment of information within computer files. In digital
 				steganography, electronic communications may include steganographic coding inside of a
@@ -21,15 +21,21 @@
 				100th pixel to correspond to a letter in the alphabet, a change so subtle that someone not
 				specifically looking for it is unlikely to notice it.
 			</p>
-			<p>Read below about this application's implementation of digital steganography.</p>
-			<small>source: WikiPedia</small>
+            <p>
+                <em>Steganographix</em> is a web app that utilizes the below described processes to allow anyone to
+                create, discover, and compare steganographic media files.
+                <Quote>
+                    Currently, this application only works with images (preferably <code>.bmp</code> files), but keep
+                    an eye out for future improvements! The next goal is to handle audio files in a similar manner.
+                </Quote>
+            </p>
 		</Box>
 		<Box>
-			<Quote>
+			<p>
 				<strong>Steganography</strong>
 				is the practice of concealing a file, message, image, or video within another file, message,
 				image, or video.
-			</Quote>
+			</p>
 			<p>
 				The advantage of steganography over cryptography alone is that the intended secret message
 				does not attractattention to itself as an object of scrutiny. Plainly visible encrypted
@@ -39,6 +45,8 @@
 					>concerned with concealing the fact that a secret message is being sent at all</strong
 				>, as well as concealing the contents of the message itself.
 			</p>
+			<p>Read below about this application's implementation of digital steganography.</p>
+			<small>source: WikiPedia</small>
 		</Box>
 	</div>
 	<div>

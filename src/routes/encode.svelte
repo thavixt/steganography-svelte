@@ -1,11 +1,14 @@
 <script lang="ts">
+    import Columns from '../components/common/Columns.svelte';
 	import Heading from '../components/common/Heading.svelte';
 	import Icon from '../components/common/Icon.svelte';
+	import Row from '../components/common/Row.svelte';
 	import ImageSection from '../components/ImageSection.svelte';
 	import ProgressBar from '../components/ProgressBar.svelte';
 	import Button from '../components/common/Button.svelte';
 	import EncodeWorker from '../logic/encode.worker?worker';
 	import notify from '../logic/notify';
+import Error from './__error.svelte';
 
 	let encodeWorker: Worker | null = null;
 	let loadImageResult: (image: ImageData | null) => void;
@@ -37,8 +40,7 @@
 
 	function onEncodePress() {
 		if (!currentSourceImageData || !currentPayloadImageData) {
-			console.error('No source or payload image set');
-			notify.error('No source or payload image set');
+			notify.error('PARAMS_MISSING');
 			return;
 		}
 		allowEncode = false;
@@ -66,12 +68,10 @@
 	}
 
     function handleEncodeWorkerMessage(e: MessageEvent<EncodeWorkerData>) {
-        console.log(e.data);
         if (e.data.progress) {
             currentProgress = e.data.progress;
         }
         if (e.data.error) {
-            console.error(e.data.error);
             notify.error(e.data.error);
         }
         if (e.data.doneMs) {
@@ -79,7 +79,6 @@
             notify.success(`Encoding finished in ${e.data.doneMs / 1000} seconds.`);
         }
         if (e.data.result) {
-            console.log(e.data.result);
             if (encodeWorker) {
                 encodeWorker.terminate();
                 encodeWorker = null;
@@ -90,32 +89,36 @@
             allowEncode = true;
         }
     }
+
+    function testClicked() {
+        notify.error('NOTHING_TO_DL');
+    }
 </script>
 
 <div class="space-y-4">
-	<Heading level={2} bold>Hide an image in another image!</Heading>
+    <Button style="mt-4" onClick={testClicked}>
+        TEST <Icon icon="fileAdd"/>
+    </Button>
+	<Heading level={2} bold>Hide an image in another image</Heading>
 	<ProgressBar widthPercent={currentProgress} />
-	<div class="mt-4 flex flex-wrap justify-around gap-y-4 gap-x-8">
-		<div class="flex flex-col space-y-4">
+	<Columns>
+		<Row>
 			<p class="text-lg font-bold">Inputs</p>
-			<div class="flex flex-col">
-				<small>Base image</small>
-				<ImageSection input on:onImageInput={onSourceImageLoaded} />
-			</div>
-			<div class="flex flex-col">
-				<small>Payload image (should be at least 4x smaller)</small>
-				<ImageSection input on:onImageInput={onPayloadImageLoaded} />
-				<Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode}>
-                    Encode <Icon icon="fileAdd"/>
-                </Button>
-			</div>
-		</div>
-		<div class="flex flex-col space-y-4">
+            <ImageSection input on:onImageInput={onSourceImageLoaded}>
+                <small>Base image</small>
+            </ImageSection>
+            <ImageSection input on:onImageInput={onPayloadImageLoaded}>
+                <small>Payload image (should be at least 4x smaller)</small>
+            </ImageSection>
+            <Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode}>
+                Encode <Icon icon="fileAdd"/>
+            </Button>
+		</Row>
+		<Row>
 			<p class="text-lg font-bold">Output</p>
-			<div class="flex flex-col">
-				<small>The result is a combination of the two input images.</small>
-				<ImageSection output bind:loadImage={loadImageResult} />
-			</div>
-		</div>
-	</div>
+            <ImageSection output bind:loadImage={loadImageResult}>
+                <small>The result is a combination of the two input images.</small>
+            </ImageSection>
+		</Row>
+	</Columns>
 </div>

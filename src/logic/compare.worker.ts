@@ -1,14 +1,16 @@
 const LOG_FREQUENCY = 50;
 
 /**
- * Compare two pixels. If they're not equal, returin a pixel based on the diffColor parameter.
+ * Compare two pixels. If they're not equal, return a new pixel based on the diffColor parameter.
  */
-function diffPixels(firstPixel: number[], secondPixel: number[], diffColor: number[]): number[] | false {
-    const areEqual = firstPixel.sort().toString() === secondPixel.sort().toString();
+function getDiffPixel(firstPixel: number[], secondPixel: number[], diffColor: number[]): number[] | false {
+    const areEqual = firstPixel.join('') === secondPixel.join('');
     if (areEqual) {
         return false;
     }
-    return blendPixels(firstPixel, diffColor);
+    // return blendPixels(firstPixel, diffColor);
+    // Use the full selected highlight color
+    return diffColor;
 }
 
 /**
@@ -74,13 +76,12 @@ function compareImages(
     // NOTE: For now, only allow same-size images
     if (firstView.length !== secondView.length) {
         // Operation not allowed - size difference
-        console.error("Process aborted. Error: SIZE_DIFFERENCE");
         // Transfer the first image back to the main thread
         self.postMessage({
             error: "SIZE_DIFFERENCE",
             type: "image",
             mode: "image",
-        }, []);
+        }, [firstImage.buffer, secondImage.buffer]);
         return false;
     }
 
@@ -90,7 +91,7 @@ function compareImages(
 
     for (let index = 0; index < firstView.length; index += 4) {
         // Process the two pixels at the same index
-        const newPixel = diffPixels(
+        const diffPixel = getDiffPixel(
             [
                 firstView[index],
                 firstView[index + 1],
@@ -106,12 +107,12 @@ function compareImages(
             diffColors,
         );
 
-        if (newPixel) {
+        if (diffPixel) {
             // Set the new pixel
-            firstView[index] = newPixel[0];
-            firstView[index + 1] = newPixel[1];
-            firstView[index + 2] = newPixel[2];
-            firstView[index + 3] = newPixel[3];
+            firstView[index] = diffPixel[0];
+            firstView[index + 1] = diffPixel[1];
+            firstView[index + 2] = diffPixel[2];
+            firstView[index + 3] = diffPixel[3];
         }
 
         if (index % LOGINTERVAL === 0) {
@@ -133,17 +134,19 @@ function compareImages(
             buffer: firstView.buffer,
             // byteLength: firstView.buffer.byteLength,
         },
-    }, [firstView.buffer]);
+    }, [firstImage.buffer, secondImage.buffer, firstView.buffer]);
 }
 
 /**
  * Handle messages coming from the main thread
  */
 function handler(e: MessageEvent<ComparePayload>) {
+    // console.log('Compare worker started', e.data);
     if (e.data.mode == "image") {
         compareImages(e.data.first, e.data.second, e.data.diffColor);
     } else {
-        console.error("No compatible process type found.");
+        console.error("No compatible processing type found.");
+        self.postMessage({ error: "No compatible processing type found." });
     }
     return;
 }

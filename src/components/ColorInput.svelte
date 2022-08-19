@@ -1,9 +1,22 @@
 <script lang="ts">
-    $: currentColor = { r:200, g:200, b:200, a:255 } as RGBA;
+	import { createEventDispatcher, onMount } from 'svelte';
+    
+	interface DispatchEvents {
+        onColorSelected: RGBA;
+	}
+	const dispatch = createEventDispatcher<DispatchEvents>();
 
-    function selectColor(e: any) {
+    export let defaultColor = '#ee33bb';
+    $: currentColor = hexToRGBA(defaultColor);
+
+    onMount(() => {
+        dispatch('onColorSelected', currentColor);
+    })
+
+    function onColorSelected(e: any) {
         if (e.target) {
             currentColor = { ...hexToRGBA(e.target.value) };
+		    dispatch('onColorSelected', currentColor);
         }
     }
     
@@ -15,12 +28,10 @@
         const b = bigint & 255;
         return { r, g, b, a: 255 };
     }
-
-    const RGBToHex = (r: number, g: number, b: number) => {
-        const hex = "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    const RGBAToHex = (rgba: RGBA) => {
+        const hex = "#" + componentToHex(rgba.r) + componentToHex(rgba.g) + componentToHex(rgba.b);
         return hex;
     }
-
     const componentToHex = (c: number) => {
         const hex = c.toString(16);
         return hex.length === 1 ? "0" + hex : hex;
@@ -28,13 +39,6 @@
 </script>
 
 <div class="color-selector">
-    Select color:
-    <input type="color" onChange={selectColor} value={RGBToHex(150, 0, 100)}/>
-    <!-- <span
-        className="color-selector-preview"
-        style={{
-            backgroundColor: `rgba(${Object.values(this.state).join(",")})`,
-        }}
-    >
-    </span> -->
+    <slot/>
+    <input class="w-12 border rounded-md p-0.5" type="color" on:input={onColorSelected} value={RGBAToHex(currentColor)}/>
 </div>

@@ -17,8 +17,8 @@
 				<Link icon to="https://en.wikipedia.org/wiki/Steganography">Steganography (Wikipedia)</Link>
 			</li>
             <li>
-                <small>
-                    This small app was inspired by watching Computerphile's video -  
+                <small class="flex flex-col">
+                    <span>This small app was inspired by watching a Computerphile YT video:</span>
                     <Link icon to="https://www.youtube.com/watch?v=TWEXCYQKyDc">Secrets Hidden in Images</Link>
                 </small>
             </li>

@@ -1,6 +1,8 @@
 <script lang="ts">
+    import Columns from '../components/common/Columns.svelte';
 	import Heading from '../components/common/Heading.svelte';
 	import Icon from '../components/common/Icon.svelte';
+	import Row from '../components/common/Row.svelte';
 	import ImageSection from '../components/ImageSection.svelte';
 	import TextSection from '../components/TextSection.svelte';
 	import ProgressBar from '../components/ProgressBar.svelte';
@@ -38,8 +40,7 @@
 
 	function onEncodePress() {
 		if (!currentSourceImageData || !currentPayloadTextData) {
-			console.error('No source image or payload text set');
-			notify.error('No source image or payload text set');
+			notify.error('PARAMS_MISSING');
 			return;
 		}
 		allowEncode = false;
@@ -66,12 +67,10 @@
 	}
 
     function handleEncodeWorkerMessage(e: MessageEvent<EncodeWorkerData>) {
-        console.log(e.data);
         if (e.data.progress) {
             currentProgress = e.data.progress;
         }
         if (e.data.error) {
-            console.error(e.data.error);
             notify.error(e.data.error);
         }
         if (e.data.doneMs) {
@@ -79,7 +78,6 @@
             notify.success(`Encoding finished in ${e.data.doneMs/1000} seconds.`);
         }
         if (e.data.result) {
-            console.log(e.data.result);
             if (encodeWorker) {
                 encodeWorker.terminate();
                 encodeWorker = null;
@@ -93,29 +91,26 @@
 </script>
 
 <div class="space-y-4">
-    <Heading level={2} bold>Hide some text in an image!</Heading>
+    <Heading level={2} bold>Hide some text in an image</Heading>
 	<ProgressBar widthPercent={currentProgress} />
-	<div class="mt-4 flex flex-wrap justify-around gap-y-4 gap-x-8">
-		<div class="flex flex-col space-y-4">
+	<Columns>
+		<Row>
 			<p class="text-lg font-bold">Inputs</p>
-			<div class="flex flex-col">
-				<small>Base image</small>
-				<ImageSection input on:onImageInput={onSourceImageLoaded} />
-			</div>
-			<div class="flex flex-col">
-				<small>Payload text</small>
-				<TextSection input on:onTextInput={onPayloadTextChange} />
-				<Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode}>
-                    Encode <Icon icon="fileAdd"/>
-                </Button>
-			</div>
-		</div>
-		<div class="flex flex-col space-y-4">
-			<p class="text-lg font-bold">Output</p>
-			<div class="flex flex-col">
-                <small>The result is a combination of the two input images.</small>
-                <ImageSection output bind:loadImage={loadImageResult} />
-            </div>
-		</div>
-	</div>
+            <ImageSection input on:onImageInput={onSourceImageLoaded}>
+                <small>Base image</small>
+            </ImageSection>
+            <TextSection input on:onTextInput={onPayloadTextChange}>
+                <small>Payload text</small>
+            </TextSection>
+            <Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode}>
+                Encode <Icon icon="fileAdd"/>
+            </Button>
+		</Row>
+		<Row>
+            <p class="text-lg font-bold">Output</p>
+            <ImageSection output bind:loadImage={loadImageResult}>
+                <small slot="description">The result is based on the image, containing the text</small>
+            </ImageSection>
+		</Row>
+	</Columns>
 </div>

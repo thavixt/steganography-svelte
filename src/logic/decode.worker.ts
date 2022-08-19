@@ -66,7 +66,7 @@ function decodeToText(imgData: WorkerImagePayload) {
     const uint8 = new TextEncoder().encode(string);
 
     // Transfer resulting arrayBuffer back to the main thread
-    console.log('Decode worker finished');
+    // console.log('Decode worker finished');
     self.postMessage({
         doneMs: time,
         result: {
@@ -146,7 +146,7 @@ function decodeToImage(imgData: WorkerImagePayload) {
     const uint8 = newImgData.data;
 
     // Transfer resulting arrayBuffer back to the main thread
-    console.log('Decode worker finished');
+    // console.log('Decode worker finished');
     self.postMessage({
         doneMs: time,
         result: {
@@ -163,7 +163,7 @@ function decodeToImage(imgData: WorkerImagePayload) {
 * Handle messages coming from the main thread
 */
 function handler(e: MessageEvent<DecodePayload>) {
-    console.log('Decode worker started', e.data);
+    // console.log('Decode worker started', e.data);
     if (e.data) {
         if (e.data.mode === "image") {
             decodeToImage(e.data.image);
@@ -171,8 +171,8 @@ function handler(e: MessageEvent<DecodePayload>) {
             decodeToText(e.data.image);
         } else {
             console.error("No compatible process type found.");
+            self.postMessage({ error: "No compatible processing type found." });
         }
-        return;
     }
 }
 

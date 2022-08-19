@@ -35,7 +35,6 @@ function encodeText(imgData: WorkerImagePayload, message: WorkerTextPayload) {
     const messageString = textDecoder.decode(stringView);
     // Parse the decoded text into a JSON object then split into an array
     const charArray: string[] = messageString.split("");
-    console.log('charArray', charArray);
     // Create a view (iterable array) of the transferred arrayBuffer object
     const view = new Uint8ClampedArray(imgData.buffer);
 
@@ -70,7 +69,7 @@ function encodeText(imgData: WorkerImagePayload, message: WorkerTextPayload) {
     const time = Math.round(performance.now() - start);
 
     // Transfer resulting buffer back to the main thread
-    console.log('Encode worker finished');
+    // console.log('Encode worker finished');
     postMessage({
         doneMs: time,
         type: "text",
@@ -201,7 +200,7 @@ function encodeImage(source: WorkerImagePayload, payload: WorkerImagePayload) {
     const time = Math.round(performance.now() - start);
 
     // Transfer resulting buffer back to the main thread
-    console.log('Encode worker finished');
+    // console.log('Encode worker finished');
     postMessage({
         doneMs: time,
         type: "image",
@@ -218,7 +217,7 @@ function encodeImage(source: WorkerImagePayload, payload: WorkerImagePayload) {
 * Handle messages coming from the main thread
 */
 function handler(e: MessageEvent<EncodePayload>) {
-    console.log('Encode worker started', e.data);
+    // console.log('Encode worker started', e.data);
     if (e.data) {
         if (e.data.mode === "text") {
             encodeText(e.data.image, e.data.payload);
@@ -226,8 +225,8 @@ function handler(e: MessageEvent<EncodePayload>) {
             encodeImage(e.data.image, e.data.payload);
         } else {
             console.error("No compatible process type found.");
+            self.postMessage({ error: "No compatible processing type found." });
         }
-        return;
     }
 }
 

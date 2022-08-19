@@ -16,7 +16,7 @@ const createId = () => Math.random().toString(36).substring(2, 9);
 function createNotificationStore() {
     const notificationStore = writable<ToastNotification[]>([]);
 
-    function send(
+    function show(
         message: string,
         type: ToastNotificationType = 'info',
         timeout = DEFAULT_TIMEOUT,
@@ -33,11 +33,33 @@ function createNotificationStore() {
 
     return {
         store: notificationStore,
-        send,
-        info: (msg: string, timeout = DEFAULT_TIMEOUT) => send(msg, 'info', timeout, 'info'),
-        success:  (msg: string, timeout = DEFAULT_TIMEOUT) => send(msg, 'success', timeout, 'check'),
-        warning: (msg: string, timeout = DEFAULT_TIMEOUT) => send(msg, 'warning', timeout, 'error'),
-        error: (msg: string, timeout = DEFAULT_TIMEOUT) => send(msg, 'error', timeout, 'close'),
+        show,
+        info: (msg: string, timeout = DEFAULT_TIMEOUT) => show(msg, 'info', timeout, 'info'),
+        success:  (msg: string, timeout = DEFAULT_TIMEOUT) => show(msg, 'success', timeout, 'check'),
+        warning: (msg: string, timeout = DEFAULT_TIMEOUT) => {
+            console.warn(`[Steganographix]`, msg);
+            show(msg, 'warning', timeout, 'error');
+        },
+        error: (msg: StegoError | string, timeout = DEFAULT_TIMEOUT) => {
+            const errorMessage = getErrorMessage(msg);
+            console.error(`[Steganographix]`, errorMessage);
+            show(errorMessage, 'error', timeout, 'close');
+        },
+    }
+}
+
+function getErrorMessage(error: StegoError | string) {
+    switch (error) {
+        case 'PARAMS_MISSING':
+            return 'At least on input image or text is missing!';
+        case 'NOTHING_TO_DL':
+            return 'No image or text output present to download';
+        case 'READ_FILE':
+            return 'Error while trying to read selected file';
+        case 'SIZE_DIFFERENCE':
+            return 'Incompatible media sizes!';
+        default:
+            return `An error happened:\n${error}`;
     }
 }
 
