@@ -81,7 +81,7 @@ function compareImages(
             error: "SIZE_DIFFERENCE",
             type: "image",
             mode: "image",
-        }, [firstImage.buffer, secondImage.buffer]);
+        }, []);
         return false;
     }
 
@@ -134,7 +134,7 @@ function compareImages(
             buffer: firstView.buffer,
             // byteLength: firstView.buffer.byteLength,
         },
-    }, [firstImage.buffer, secondImage.buffer, firstView.buffer]);
+    }, [firstView.buffer]);
 }
 
 /**
