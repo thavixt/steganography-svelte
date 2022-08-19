@@ -38,7 +38,7 @@
 			</p>
 			<p>
 				The advantage of steganography over cryptography alone is that the intended secret message
-				does not attractattention to itself as an object of scrutiny. Plainly visible encrypted
+				does not attract attention to itself as an object of scrutiny. Plainly visible encrypted
 				messages — no matter how unbreakable — arouse interest, and may in themselves be
 				incriminating in countries where encryption is illegal. Thus, whereas cryptography is the
 				practice of protecting the contents of a message alone, steganography is <strong
