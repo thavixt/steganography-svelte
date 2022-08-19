@@ -6,7 +6,15 @@ This repo is actually a remake of my original steganography app found [here](htt
 
 ## TODO
 
-- [] handle transfering back the original buffers on worker answers
+Fixes:
+
+- [ ] handle transfering back the original buffers on worker answers
   - this is to fix ex: `decode.svelte:30 Uncaught DOMException: Failed to execute 'postMessage' on 'Worker': ArrayBuffer at index 0 is already detached.`
-- [] have proper error message handling
+
+Improvements:
+
+- [x] create some basic ui/layout components for better reusability
+- [ ] notification placements should be fixed
+- [ ] jump to the progress bar on starting a process
+- [ ] have proper error message handling
   - should be using enums maybe? instead of just a string union type
