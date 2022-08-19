@@ -8,7 +8,6 @@
 	import Button from '../components/common/Button.svelte';
 	import EncodeWorker from '../logic/encode.worker?worker';
 	import notify from '../logic/notify';
-import Error from './__error.svelte';
 
 	let encodeWorker: Worker | null = null;
 	let loadImageResult: (image: ImageData | null) => void;
@@ -89,16 +88,9 @@ import Error from './__error.svelte';
             allowEncode = true;
         }
     }
-
-    function testClicked() {
-        notify.error('NOTHING_TO_DL');
-    }
 </script>
 
 <div class="space-y-4">
-    <Button style="mt-4" onClick={testClicked}>
-        TEST <Icon icon="fileAdd"/>
-    </Button>
 	<Heading level={2} bold>Hide an image in another image</Heading>
 	<ProgressBar widthPercent={currentProgress} />
 	<Columns>
