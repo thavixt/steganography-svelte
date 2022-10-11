@@ -2,10 +2,12 @@
 	import { createEventDispatcher } from 'svelte';
     import Button from '../components/common/Button.svelte';
     import Icon from '../components/common/Icon.svelte';
+	import { StegoError } from '../errors';
 	import notify from '../logic/notify';
 
     export let input = false;
     export let output = false;
+    export let disabled = false;
     
 	interface DispatchEvents {
 		onImageInput: ImageData | null;
@@ -36,7 +38,8 @@
 		ctx.imageSmoothingEnabled = false;
 		const file = e.target.files[0];
 		if (!file) {
-			clearImage();
+            // pass, don't clear already loaded img
+			// clearImage();
 			return;
 		}
 		const reader = new FileReader();
@@ -78,6 +81,14 @@
 		canvas.height = image.height;
 		ctx.putImageData(image, 0, 0);
 	};
+
+    export const getImage = (): ImageData | null => {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            return null;
+        }
+        return ctx.getImageData(0, 0, canvas.width, canvas.height)
+    }
 </script>
 
 <div class="flex flex-col space-y-2 my-2">
@@ -86,10 +97,10 @@
     <div class="flex flex-col justify-center items-center">
         <canvas class="border-2 mb-2 p-2 min-h-[150px] max-w-[350px] w-max h-max bg-white" bind:this={canvas} />
         {#if input}
-            <input class="w-full" on:input={onInput} type="file" />
+            <input class="w-full" on:input={onInput} type="file" disabled={disabled} />
         {/if}
         {#if output}
-            <Button style="w-full mt-4" onClick={downloadImage} disabled={!hasImage}>
+            <Button style="w-full mt-4" onClick={downloadImage} disabled={!hasImage || disabled}>
                 Download <Icon icon="dl"/>
             </Button>
         {/if}

@@ -11,17 +11,19 @@
 
 	let decodeWorker: Worker | null = null;
 	let loadImageResult: (image: ImageData | null) => void;
-	let currentImageData: ImageData | null = null;
+    let getInputImage: () => ImageData | null;
+    let working = false;
 
 	$: currentProgress = 0; // 0-100
 	$: allowDecode = false;
 
 	function onDecodePress() {
-		if (!currentImageData) {
+        const image = getInputImage();
+		if (!image) {
 			notify.error('PARAMS_MISSING');
 			return;
 		}
-		allowDecode = false;
+		working = true;
 		currentProgress = 0;
 		loadImageResult(null); // clear output
 		decodeWorker = new DecodeWorker();
@@ -31,12 +33,12 @@
 			{
 				mode: 'image',
 				image: {
-					height: currentImageData.height,
-					width: currentImageData.width,
-					buffer: currentImageData.data.buffer
+					height: image.height,
+					width: image.width,
+					buffer: image.data.buffer
 				}
 			},
-			[currentImageData.data.buffer]
+			[image.data.buffer]
 		);
 	}
 
@@ -46,8 +48,9 @@
 		}
 		if (e.data.error) {
 			notify.error(e.data.error);
+			working = false;
 		}
-		if (e.data.doneMs) {
+		if (typeof e.data.doneMs === 'number') {
 			currentProgress = 100;
 			notify.success(`Decoding finished in ${e.data.doneMs / 1000} seconds.`);
 		}
@@ -59,18 +62,12 @@
 			const uint8Array = new Uint8ClampedArray(e.data.result.buffer);
 			const resultImage = new ImageData(uint8Array, e.data.result.width, e.data.result.height);
 			loadImageResult(resultImage);
-			allowDecode = true;
+			working = false;
 		}
 	}
 
 	function onImageInput({ detail }: CustomEvent<ImageData>) {
-		if (!detail) {
-			currentImageData = null;
-			allowDecode = false;
-			return;
-		}
-		currentImageData = detail;
-		allowDecode = true;
+		allowDecode = !!detail;
 	}
 </script>
 
@@ -80,8 +77,8 @@
 	<Columns>
 		<Row>
             <p class="text-lg font-bold">Input</p>
-			<ImageSection input on:onImageInput={onImageInput} />
-			<Button style="mt-4" onClick={onDecodePress} disabled={!allowDecode}>
+			<ImageSection input on:onImageInput={onImageInput} bind:getImage={getInputImage} disabled={working} />
+			<Button style="mt-4" onClick={onDecodePress} disabled={!allowDecode || working}>
                 Decode <Icon icon="fileRemove"/>
             </Button>
 		</Row>

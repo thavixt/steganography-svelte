@@ -12,31 +12,22 @@
 
 	let compareWorker: Worker | null = null;
 	let loadImageResult: (image: ImageData | null) => void;
+    let getInputImage1: () => ImageData | null;
+    let getInputImage2: () => ImageData | null;
+    let working = false;
 
-	let currentFirstImageData: ImageData | null = null;
-	let currentSecondImageData: ImageData | null = null;
+    let firstImageLoaded = false;
+    let secondImageLoaded = false;
 	let currentDiffColor: RGBA | null = null;
 
 	$: currentProgress = 0; // 0-100
-	$: allowCompare = false;
+	$: allowCompare = firstImageLoaded && secondImageLoaded && !!currentDiffColor;
 
 	function onFirstImageLoaded({ detail }: CustomEvent<ImageData>) {
-		if (!detail) {
-			currentFirstImageData = null;
-			allowCompare = false;
-			return;
-		}
-		currentFirstImageData = detail;
-		allowCompare = Boolean(currentSecondImageData);
+        firstImageLoaded = !!detail;
 	}
 	function onSecondImageLoaded({ detail }: CustomEvent<ImageData>) {
-		if (!detail) {
-			currentSecondImageData = null;
-			allowCompare = false;
-			return;
-		}
-		currentSecondImageData = detail;
-		allowCompare = Boolean(currentFirstImageData);
+		secondImageLoaded = !!detail;
 	}
     function onColorSelected({ detail }: CustomEvent<RGBA>) {
 		if (detail) {
@@ -45,11 +36,13 @@
     }
 
 	function onComparePress() {
-		if (!currentFirstImageData || !currentSecondImageData || !currentDiffColor) {
+        const firstImage = getInputImage1();
+        const secondImage = getInputImage2();
+		if (!firstImage || !secondImage || !currentDiffColor) {
 		    notify.error('PARAMS_MISSING');
 			return;
 		}
-		allowCompare = false;
+		working = true;
 		currentProgress = 0;
 		loadImageResult(null); // clear output
 		compareWorker = new CompareWorker();
@@ -59,29 +52,31 @@
 			{
 				mode: 'image',
 				first: {
-					height: currentFirstImageData.height,
-					width: currentFirstImageData.width,
-					buffer: currentFirstImageData.data.buffer
+					height: firstImage.height,
+					width: firstImage.width,
+					buffer: firstImage.data.buffer
 				},
 				second: {
-					height: currentSecondImageData.height,
-					width: currentSecondImageData.width,
-					buffer: currentSecondImageData.data.buffer
+					height: secondImage.height,
+					width: secondImage.width,
+					buffer: secondImage.data.buffer
 				},
                 diffColor: currentDiffColor,
 			},
-			[currentFirstImageData.data.buffer, currentSecondImageData.data.buffer]
+			[firstImage.data.buffer, secondImage.data.buffer]
 		);
 	}
 
     function handleCompareWorkerMessage(e: MessageEvent<EncodeWorkerData>) {
+        console.log(e.data)
         if (e.data.progress) {
             currentProgress = e.data.progress;
         }
         if (e.data.error) {
             notify.error(e.data.error);
+			working = false;
         }
-        if (e.data.doneMs) {
+        if (typeof e.data.doneMs === 'number') { // allow 0 aswell
             currentProgress = 100;
             notify.success(`Comparison finished in ${e.data.doneMs / 1000} seconds.`);
         }
@@ -93,7 +88,7 @@
             const uint8Array = new Uint8ClampedArray(e.data.result.buffer);
             const resultImage = new ImageData(uint8Array, e.data.result.width, e.data.result.height);
             loadImageResult(resultImage);
-            allowCompare = true;
+            working = false;
         }
     }
 </script>
@@ -104,22 +99,22 @@
 	<Columns>
 		<Row>
 			<p class="text-lg font-bold">Inputs</p>
-            <ImageSection input on:onImageInput={onFirstImageLoaded}>
+            <ImageSection input on:onImageInput={onFirstImageLoaded} bind:getImage={getInputImage1} disabled={working}>
                 <small>Base image</small>
             </ImageSection>
-            <ImageSection input on:onImageInput={onSecondImageLoaded}>
+            <ImageSection input on:onImageInput={onSecondImageLoaded} bind:getImage={getInputImage2} disabled={working}>
                 <small>Comparison image</small>
             </ImageSection>
             <div class="mt-4 mb-2">
                 <ColorInput on:onColorSelected={onColorSelected}>Select a highlight color:</ColorInput>
             </div>
-            <Button style="mt-4" onClick={onComparePress} disabled={!allowCompare}>
+            <Button style="mt-4" onClick={onComparePress} disabled={!allowCompare || working}>
                 Compare difference <Icon icon="compare"/>
             </Button>
 		</Row>
 		<Row>
 			<p class="text-lg font-bold">Output</p>
-            <ImageSection output bind:loadImage={loadImageResult}>
+            <ImageSection output bind:loadImage={loadImageResult} disabled={working}>
                 <div slot='description' class="flex flex-col self-start">
                     <small>The result highlights the difference of the images</small>
                 </div>

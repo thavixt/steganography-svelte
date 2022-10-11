@@ -1,4 +1,5 @@
 import { writable } from "svelte/store"
+import type { StegoError } from "../errors";
 
 export type ToastNotificationType = 'info' | 'success' | 'warning' | 'error';
 export type ToastNotificationIcon = 'info' | 'check' | 'error' | 'close';

@@ -24,11 +24,8 @@
             <p>
                 <em>Steganographix</em> is a web app that utilizes the below described processes to allow anyone to
                 create, discover, and compare steganographic media files.
-                <Quote>
-                    Currently, this application only works with images (preferably <code>.bmp</code> files), but keep
-                    an eye out for future improvements! The next goal is to handle audio files in a similar manner.
-                </Quote>
             </p>
+			<p>Read below about this application's implementation of digital steganography.</p>
 		</Box>
 		<Box>
 			<p>
@@ -45,7 +42,6 @@
 					>concerned with concealing the fact that a secret message is being sent at all</strong
 				>, as well as concealing the contents of the message itself.
 			</p>
-			<p>Read below about this application's implementation of digital steganography.</p>
 			<small>source: WikiPedia</small>
 		</Box>
 	</div>
@@ -135,9 +131,8 @@ new:      01111101, 00110010, 11010000, 11111101
 			<Box>
                 <Heading level={5} mb0>Step 5:</Heading>
                 <p>
-                    Comparing a pixel from the original image with the same pixel injected with one character of the
-                    secret message, we can see that the rgb color and alpha values have not changed drastically.
-                    This change is mostly undetectable by the human eye.
+                    Comparing a pixel from the original image with the same pixel containing one character of the
+                    secret message, the change is barely (if at all) noticable by the human eye.
                 </p>
                 <Code>original:  <PixelExample color="#8030d2"/> [125, 48, 210, 255]
 new:       <PixelExample color="#7d32d0"/> [125, 50, 208, 253]

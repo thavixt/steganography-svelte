@@ -2,10 +2,12 @@
 	import { createEventDispatcher } from 'svelte';
     import Button from '../components/common/Button.svelte';
 	import Icon from '../components/common/Icon.svelte';
+	import { StegoError } from '../errors';
 	import notify from '../logic/notify';
 
     export let input = false;
     export let output = false;
+    export let disabled = false;
     
 	interface DispatchEvents {
 		onTextInput: TextData | null;
@@ -89,6 +91,18 @@
             textArea.value = decodedText;
         }
 	};
+
+    export const getText = (): TextData | null => {
+        if (!textArea.value) {
+            return null;
+        }
+        const encoder = new TextEncoder();
+        const textData: TextData = {
+            buffer: encoder.encode(textArea.value).buffer,
+            length: textArea.value.length,
+        };
+        return textData;
+    }
 </script>
 
 <div class="flex flex-col space-y-2 my-2">
@@ -99,12 +113,13 @@
             class="border-2 mb-2 p-2 h-[170px] w-[320px] bg-white text-sm font-mono" 
             bind:this={textArea} 
             on:change={onChange}
+            disabled={disabled}
         />
         {#if input}
-            <input class="w-full" on:input={onInput} type="file" />
+            <input class="w-full" on:input={onInput} type="file" disabled={disabled}/>
         {/if}
         {#if output}
-            <Button style="w-full mt-4" onClick={downloadText} disabled={!currentText}>
+            <Button style="w-full mt-4" onClick={downloadText} disabled={!currentText || disabled}>
                 Download <Icon icon="dl"/>
             </Button>
         {/if}

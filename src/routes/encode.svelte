@@ -11,38 +11,31 @@
 
 	let encodeWorker: Worker | null = null;
 	let loadImageResult: (image: ImageData | null) => void;
+    let getBaseImage: () => ImageData | null;
+    let getPayloadImage: () => ImageData | null;
+    let working = false;
 
-	let currentSourceImageData: ImageData | null = null;
-	let currentPayloadImageData: ImageData | null = null;
+    let baseImageLoaded = false;
+    let payloadImageLoaded = false;
 
 	$: currentProgress = 0; // 0-100
-	$: allowEncode = false;
+	$: allowEncode = baseImageLoaded && payloadImageLoaded;
 
 	function onSourceImageLoaded({ detail }: CustomEvent<ImageData>) {
-		if (!detail) {
-			currentSourceImageData = null;
-			allowEncode = false;
-			return;
-		}
-		currentSourceImageData = detail;
-		allowEncode = Boolean(currentPayloadImageData);
+        baseImageLoaded = !!detail;
 	}
 	function onPayloadImageLoaded({ detail }: CustomEvent<ImageData>) {
-		if (!detail) {
-			currentPayloadImageData = null;
-			allowEncode = false;
-			return;
-		}
-		currentPayloadImageData = detail;
-		allowEncode = Boolean(currentSourceImageData);
+		payloadImageLoaded = !detail;
 	}
 
 	function onEncodePress() {
-		if (!currentSourceImageData || !currentPayloadImageData) {
+        const firstImage = getBaseImage();
+        const secondImage = getPayloadImage();
+		if (!firstImage || !secondImage) {
 			notify.error('PARAMS_MISSING');
 			return;
 		}
-		allowEncode = false;
+		working = true;
 		currentProgress = 0;
 		loadImageResult(null); // clear output
 		encodeWorker = new EncodeWorker();
@@ -52,17 +45,17 @@
 			{
 				mode: 'image',
 				image: {
-					height: currentSourceImageData.height,
-					width: currentSourceImageData.width,
-					buffer: currentSourceImageData.data.buffer
+					height: firstImage.height,
+					width: firstImage.width,
+					buffer: firstImage.data.buffer
 				},
 				payload: {
-					height: currentPayloadImageData.height,
-					width: currentPayloadImageData.width,
-					buffer: currentPayloadImageData.data.buffer
+					height: secondImage.height,
+					width: secondImage.width,
+					buffer: secondImage.data.buffer
 				}
 			},
-			[currentSourceImageData.data.buffer, currentPayloadImageData.data.buffer]
+			[firstImage.data.buffer, secondImage.data.buffer]
 		);
 	}
 
@@ -72,8 +65,9 @@
         }
         if (e.data.error) {
             notify.error(e.data.error);
+            working = false;
         }
-        if (e.data.doneMs) {
+        if (typeof e.data.doneMs === 'number') {
             currentProgress = 100;
             notify.success(`Encoding finished in ${e.data.doneMs / 1000} seconds.`);
         }
@@ -85,7 +79,7 @@
             const uint8Array = new Uint8ClampedArray(e.data.result.buffer);
             const resultImage = new ImageData(uint8Array, e.data.result.width, e.data.result.height);
             loadImageResult(resultImage);
-            allowEncode = true;
+            working = false;
         }
     }
 </script>
@@ -96,19 +90,19 @@
 	<Columns>
 		<Row>
 			<p class="text-lg font-bold">Inputs</p>
-            <ImageSection input on:onImageInput={onSourceImageLoaded}>
+            <ImageSection input on:onImageInput={onSourceImageLoaded} bind:getImage={getBaseImage} disabled={working}>
                 <small>Base image</small>
             </ImageSection>
-            <ImageSection input on:onImageInput={onPayloadImageLoaded}>
+            <ImageSection input on:onImageInput={onPayloadImageLoaded} bind:getImage={getPayloadImage} disabled={working}>
                 <small>Payload image (should be at least 4x smaller)</small>
             </ImageSection>
-            <Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode}>
+            <Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode || working}>
                 Encode <Icon icon="fileAdd"/>
             </Button>
 		</Row>
 		<Row>
 			<p class="text-lg font-bold">Output</p>
-            <ImageSection output bind:loadImage={loadImageResult}>
+            <ImageSection output bind:loadImage={loadImageResult} disabled={working}>
                 <small>The result is a combination of the two input images.</small>
             </ImageSection>
 		</Row>

@@ -12,38 +12,31 @@
 
 	let encodeWorker: Worker | null = null;
 	let loadImageResult: (image: ImageData | null) => void;
+    let getInputImage: () => ImageData | null;
+    let getInputText: () => TextData | null;
+    let working = false;
 
-	let currentSourceImageData: ImageData | null = null;
-	let currentPayloadTextData: TextData | null = null;
+    let imageLoaded = false;
 
 	$: currentProgress = 0; // 0-100
-	$: allowEncode = false;
+	$: allowEncode = !!imageLoaded;
 
 	function onSourceImageLoaded({ detail }: CustomEvent<ImageData>) {
-		if (!detail) {
-			currentSourceImageData = null;
-			allowEncode = false;
-			return;
-		}
-		currentSourceImageData = detail;
-		allowEncode = Boolean(currentSourceImageData) && Boolean(currentPayloadTextData);
-	}
-	function onPayloadTextChange({ detail }: CustomEvent<TextData>) {
-		if (!detail) {
-			currentPayloadTextData = null;
-			allowEncode = false;
-			return;
-		}
-		currentPayloadTextData = detail;
-		allowEncode = Boolean(currentSourceImageData) && Boolean(currentPayloadTextData);
+        imageLoaded = !!detail;
 	}
 
 	function onEncodePress() {
-		if (!currentSourceImageData || !currentPayloadTextData) {
+        const image = getInputImage();
+        const text = getInputText();
+		if (!image) {
 			notify.error('PARAMS_MISSING');
 			return;
 		}
-		allowEncode = false;
+        if (!text) {
+            notify.warning('No text to encode');
+            return;
+        }
+		working = true;
 		currentProgress = 0;
 		loadImageResult(null); // clear output
 		encodeWorker = new EncodeWorker();
@@ -53,16 +46,16 @@
 			{
 				mode: 'text',
 				image: {
-					height: currentSourceImageData.height,
-					width: currentSourceImageData.width,
-					buffer: currentSourceImageData.data.buffer
+					height: image.height,
+					width: image.width,
+					buffer: image.data.buffer
 				},
                 payload: {
-					length: currentPayloadTextData.length,
-					buffer: currentPayloadTextData.buffer
+					length: text.length,
+					buffer: text.buffer
                 },
 			},
-			[currentSourceImageData.data.buffer, currentPayloadTextData.buffer]
+			[image.data.buffer, text.buffer]
 		);
 	}
 
@@ -72,6 +65,7 @@
         }
         if (e.data.error) {
             notify.error(e.data.error);
+			working = false;
         }
         if (e.data.doneMs) {
             currentProgress = 100;
@@ -85,7 +79,7 @@
             const uint8Array = new Uint8ClampedArray(e.data.result.buffer);
             const resultImage = new ImageData(uint8Array, e.data.result.width, e.data.result.height);
             loadImageResult(resultImage);
-            allowEncode = Boolean(currentSourceImageData) && Boolean(currentPayloadTextData);
+            working = false;
         }
     }
 </script>
@@ -96,19 +90,19 @@
 	<Columns>
 		<Row>
 			<p class="text-lg font-bold">Inputs</p>
-            <ImageSection input on:onImageInput={onSourceImageLoaded}>
+            <ImageSection input on:onImageInput={onSourceImageLoaded} bind:getImage={getInputImage} disabled={working}>
                 <small>Base image</small>
             </ImageSection>
-            <TextSection input on:onTextInput={onPayloadTextChange}>
+            <TextSection input bind:getText={getInputText} disabled={working}>
                 <small>Payload text</small>
             </TextSection>
-            <Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode}>
+            <Button style="mt-4" onClick={onEncodePress} disabled={!allowEncode || working}>
                 Encode <Icon icon="fileAdd"/>
             </Button>
 		</Row>
 		<Row>
             <p class="text-lg font-bold">Output</p>
-            <ImageSection output bind:loadImage={loadImageResult}>
+            <ImageSection output bind:loadImage={loadImageResult} disabled={working}>
                 <small slot="description">The result is based on the image, containing the text</small>
             </ImageSection>
 		</Row>
