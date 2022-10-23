@@ -116,7 +116,7 @@
             disabled={disabled}
         />
         {#if input}
-            <input class="w-full" on:input={onInput} type="file" disabled={disabled}/>
+            <input class="w-full" on:input={onInput} type="file" accept=".txt" disabled={disabled}/>
         {/if}
         {#if output}
             <Button style="w-full mt-4" onClick={downloadText} disabled={!currentText || disabled}>

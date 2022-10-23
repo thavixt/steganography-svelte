@@ -97,7 +97,7 @@
     <div class="flex flex-col justify-center items-center">
         <canvas class="border-2 mb-2 p-2 min-h-[150px] max-w-[350px] w-max h-max bg-white" bind:this={canvas} />
         {#if input}
-            <input class="w-full" on:input={onInput} type="file" disabled={disabled} />
+            <input class="w-full" on:input={onInput} type="file" accept="image/*" disabled={disabled} />
         {/if}
         {#if output}
             <Button style="w-full mt-4" onClick={downloadImage} disabled={!hasImage || disabled}>
