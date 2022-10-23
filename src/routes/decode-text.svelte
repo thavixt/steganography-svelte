@@ -78,8 +78,8 @@
 	<Columns>
 		<Row>
 			<p class="text-lg font-bold">Input</p>
-			<ImageSection input on:onImageInput={onImageInput} bind:getImage={getInputImage} />
-			<Button style="mt-4" onClick={onDecodePress} disabled={!allowDecode}>
+			<ImageSection input on:onImageInput={onImageInput} bind:getImage={getInputImage} disabled={working} />
+			<Button style="mt-4" onClick={onDecodePress} disabled={!allowDecode ||working}>
                 Decode <Icon icon="fileRemove"/>
             </Button>
 		</Row>

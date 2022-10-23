@@ -26,7 +26,7 @@
         baseImageLoaded = !!detail;
 	}
 	function onPayloadImageLoaded({ detail }: CustomEvent<ImageData>) {
-		payloadImageLoaded = !detail;
+		payloadImageLoaded = !!detail;
 	}
 
 	function onEncodePress() {
