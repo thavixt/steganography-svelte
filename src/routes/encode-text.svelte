@@ -7,6 +7,7 @@
 	import TextSection from '../components/TextSection.svelte';
 	import ProgressBar from '../components/ProgressBar.svelte';
 	import Button from '../components/common/Button.svelte';
+	import { scrollToTop } from '../logic/common';
 	import EncodeWorker from '../logic/encode.worker?worker';
     import notify from '../logic/notify';
 
@@ -41,6 +42,7 @@
 		loadImageResult(null); // clear output
 		encodeWorker = new EncodeWorker();
 		encodeWorker.addEventListener('message', handleEncodeWorkerMessage);
+        scrollToTop();
         notify.info('Encoding started...');
 		encodeWorker.postMessage(
 			{

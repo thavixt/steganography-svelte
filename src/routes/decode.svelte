@@ -7,6 +7,7 @@
 	import ImageSection from '../components/ImageSection.svelte';
 	import ProgressBar from '../components/ProgressBar.svelte';
 	import DecodeWorker from '../logic/decode.worker?worker';
+	import { scrollToTop } from '../logic/common';
 	import notify from '../logic/notify';
 
 	let decodeWorker: Worker | null = null;
@@ -28,6 +29,7 @@
 		loadImageResult(null); // clear output
 		decodeWorker = new DecodeWorker();
 		decodeWorker.addEventListener('message', handleDecodeWorkerMessage);
+        scrollToTop();
 		notify.info('Decoding started...');
 		decodeWorker.postMessage(
 			{

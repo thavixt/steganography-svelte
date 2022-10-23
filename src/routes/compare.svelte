@@ -7,6 +7,7 @@
 	import ImageSection from '../components/ImageSection.svelte';
 	import ProgressBar from '../components/ProgressBar.svelte';
 	import Button from '../components/common/Button.svelte';
+	import { scrollToTop } from '../logic/common';
 	import CompareWorker from '../logic/compare.worker?worker';
 	import notify from '../logic/notify';
 
@@ -47,6 +48,7 @@
 		loadImageResult(null); // clear output
 		compareWorker = new CompareWorker();
 		compareWorker.addEventListener('message', handleCompareWorkerMessage);
+        scrollToTop();
 		notify.info('Comparison started...');
 		compareWorker.postMessage(
 			{

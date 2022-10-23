@@ -8,6 +8,7 @@
 	import TextSection from '../components/TextSection.svelte';
 	import ProgressBar from '../components/ProgressBar.svelte';
 	import DecodeWorker from '../logic/decode.worker?worker';
+	import { scrollToTop } from '../logic/common';
 	import notify from '../logic/notify';
 
 	let decodeWorker: Worker | null = null;
@@ -29,6 +30,7 @@
 		loadTextResult(null); // clear output
 		decodeWorker = new DecodeWorker();
 		decodeWorker.addEventListener('message', handleEncodeWorkerMessage);
+        scrollToTop();
 		notify.info('Decoding started...');
 		decodeWorker.postMessage(
 			{
