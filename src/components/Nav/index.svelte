@@ -4,8 +4,8 @@
 </script>
 
 <nav class="w-full flex justify-center pb-2 md:pb-0">
-    <div class="flex flex-wrap justify-around gap-y-2 gap-x-2 text-white">
-        <NavItem route="/" name="Home"/>
+    <div class="flex flex-wrap justify-center gap-y-2 gap-x-2 text-white">
+        <NavItem route="/" name="What is this?"/>
         <NavItem route="/decode" name="Decode"/>
         <NavItem route="/decode-text" name="Decode to text"/>
         <NavItem route="/encode" name="Encode"/>

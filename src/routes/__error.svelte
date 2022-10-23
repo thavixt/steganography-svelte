@@ -6,6 +6,6 @@
 
 <div class="flex flex-col justify-center items-center m-auto">
     <Heading>Ooops!</Heading>
-    <p class="mb-8">This doesn't exists :(</p>
-    <Link to="/" self>Go back home<Icon icon="undo"/></Link>
+    <p class="mb-8">This page doesn't exists (yet?)</p>
+    <Link to="/" hover={false} self>Go back home<Icon icon="undo"/></Link>
 </div>

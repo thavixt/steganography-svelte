@@ -5,7 +5,7 @@
 	export let self = false;
     export let em = false; // italic text
 	export let style = ''; // custom class names from prop
-    export let icon = false; // include an svg icon after the link
+    export let icon = false; // include an "link" svg icon after the link
     export let hover = true;
 
 	let target = '_blank';
