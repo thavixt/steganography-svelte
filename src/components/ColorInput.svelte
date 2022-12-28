@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { hexToRGBA, RGBAToHex } from 'src/logic/common';
+	import { hexToRGBA, RGBAToHex } from '../logic/common';
 	import { createEventDispatcher, onMount } from 'svelte';
     
 	interface DispatchEvents {
