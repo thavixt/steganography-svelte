@@ -1,5 +1,5 @@
 import { writable } from "svelte/store"
-import type { StegoError } from "../errors";
+import { StegoError } from "../errors";
 
 export type ToastNotificationType = 'info' | 'success' | 'warning' | 'error';
 export type ToastNotificationIcon = 'info' | 'check' | 'error' | 'close';
@@ -46,18 +46,26 @@ function createNotificationStore() {
             console.error(`[Steganographix]`, errorMessage);
             show(errorMessage, 'error', timeout, 'close');
         },
+        catch: (e: Error | StegoError | unknown) => {
+            // FIXME: hack...
+            // should accept anything, and display an error on the UI
+            const message = e instanceof Error ? e.message : (e?.toString() ?? e as string);
+            show(message, 'error', DEFAULT_TIMEOUT, 'close');
+            // returns a value to save one line in catch clauses where the scope expects a return value
+            return null;
+        }
     }
 }
 
 function getErrorMessage(error: StegoError | string) {
     switch (error) {
-        case 'PARAMS_MISSING':
+        case StegoError.PARAMS_MISSING:
             return 'At least on input image or text is missing!';
-        case 'NOTHING_TO_DL':
+        case StegoError.NOTHING_TO_DL:
             return 'No image or text output present to download';
-        case 'READ_FILE':
+        case StegoError.READ_FILE:
             return 'Error while trying to read selected file';
-        case 'SIZE_DIFFERENCE':
+        case StegoError.SIZE_DIFFERENCE:
             return 'Incompatible media sizes!';
         default:
             return `An error happened:\n${error}`;

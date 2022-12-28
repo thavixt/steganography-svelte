@@ -6,8 +6,8 @@
 <header class="px-8 bg-gray-900 text-white pt-4 border-b-8 border-red-500">
 	<h1 class="mb-4 text-2xl">
 		<Link to="https://github.com/thavixt">thavixt</Link>
-		/
-		<Link to="/" self>Steganografix</Link>
+        <span>/</span>
+        <Link to="/" self>Steganografix</Link>
 	</h1>
     <Nav />
 </header>

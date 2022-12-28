@@ -17,6 +17,23 @@
 	let canvas: HTMLCanvasElement;
     $: hasImage = false;
 
+    // https://github.com/sveltejs/svelte/issues/4965
+    let defaultContext: CanvasRenderingContext2D | undefined;
+    $: currentContext = defaultContext;
+    function getContext() {
+        if (currentContext) {
+            return currentContext;
+        } else {
+            // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext#parameters
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            if (!ctx) {
+                throw new Error('Unexpected error - please refresh the page and try again');
+            }
+            currentContext = ctx;
+            return currentContext;
+        }
+    }
+
 	function clearImage() {
         hasImage = false;
 		const ctx = canvas.getContext('2d');
@@ -38,7 +55,7 @@
 		ctx.imageSmoothingEnabled = false;
 		const file = e.target.files[0];
 		if (!file) {
-            // pass, don't clear already loaded img
+            // pass - don't clear already loaded image
 			// clearImage();
 			return;
 		}
@@ -83,11 +100,12 @@
 	};
 
     export const getImage = (): ImageData | null => {
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            return null;
+        try {
+            const ctx = getContext();
+            return ctx.getImageData(0, 0, canvas.width, canvas.height);
+        } catch (e) {
+            return notify.catch(e);
         }
-        return ctx.getImageData(0, 0, canvas.width, canvas.height)
     }
 </script>
 

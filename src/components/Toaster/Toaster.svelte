@@ -6,12 +6,11 @@
 
     const notificationStore = notify.store;
 
-    // use tailwind classes instead of hex?
     let colors: Record<ToastNotificationType, string> = {
-        info: "#5bc0de",
-        success: "#84C991",
-        warning: "#f0ad4e",
-        error: "#e26d69",
+        info: "bg-blue-400",
+        success: "bg-green-500",
+        warning: "bg-yellow-500",
+        error: "bg-red-600",
     };
 </script>
 
@@ -19,8 +18,7 @@
     {#each $notificationStore as notification (notification.id)}
         <div
             animate:flip
-            class="flex mb-3 items-center px-2"
-            style="background: {colors[notification.type]};"
+            class="flex mb-3 items-center px-2 {colors[notification.type]}"
             transition:fly={{ x: 30 }}
         >
             {#if notification.icon}

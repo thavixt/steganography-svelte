@@ -2,8 +2,7 @@
 	import Box from '../components/common/Box.svelte';
 	import Code from '../components/common/Code.svelte';
 	import Heading from '../components/common/Heading.svelte';
-	import Quote from '../components/common/Quote.svelte';
-	import PixelExample from '../components/PixelExample.svelte';
+	import Pixel from '../components/Pixel.svelte';
 </script>
 
 <div class="space-y-8 max-w-6xl">
@@ -134,8 +133,8 @@ new:      01111101, 00110010, 11010000, 11111101
                     Comparing a pixel from the original image with the same pixel containing one character of the
                     secret message, the change is barely (if at all) noticable by the human eye.
                 </p>
-                <Code>original:  <PixelExample color="#8030d2"/> [125, 48, 210, 255]
-new:       <PixelExample color="#7d32d0"/> [125, 50, 208, 253]
+                <Code>original:  <Pixel color="#8030d2"/> [125, 48, 210, 255]
+new:       <Pixel color="#7d32d0"/> [125, 50, 208, 253]
                 </Code>
             </Box>
 		</Box>

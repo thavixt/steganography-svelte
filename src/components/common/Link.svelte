@@ -1,11 +1,29 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
 
+    /**
+     * Target - href
+     */
 	export let to: string;
+    /**
+     * Open in same tab (target '_self' instead of '_blank')
+     */
 	export let self = false;
-    export let em = false; // italic text
-	export let style = ''; // custom class names from prop
-    export let icon = false; // include an "link" svg icon after the link
+    /**
+     * Italic text
+     */
+    export let em = false;
+    /**
+     * Custom class names
+     */
+	export let style = '';
+    /**
+     * include an "link" svg icon after the link
+     */
+    export let icon = false;
+    /**
+     * **default** Show underline on hover
+     */
     export let hover = true;
 
 	let target = '_blank';
@@ -13,7 +31,7 @@
 		target = '_self';
 	}
     
-	const activeClasses: string[] = [];
+	const activeClasses: string[] = ['inline-block'];
 	if (em) {
 		activeClasses.push('italic');
 	}

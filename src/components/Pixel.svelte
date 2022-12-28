@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * Must be a valid CSS color code (RGB/A, HEX, etc)
+     * Must be a valid CSS color - RGB/A, HEX, string
     */
     export let color: string;
 </script>

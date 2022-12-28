@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { hexToRGBA, RGBAToHex } from 'src/logic/common';
 	import { createEventDispatcher, onMount } from 'svelte';
     
 	interface DispatchEvents {
@@ -18,23 +19,6 @@
             currentColor = { ...hexToRGBA(e.target.value) };
 		    dispatch('onColorSelected', currentColor);
         }
-    }
-    
-    const hexToRGBA = (hexColor: string) => {
-        const hex = hexColor.split("#").pop()!;
-        const bigint = parseInt(hex, 16);
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return { r, g, b, a: 255 };
-    }
-    const RGBAToHex = (rgba: RGBA) => {
-        const hex = "#" + componentToHex(rgba.r) + componentToHex(rgba.g) + componentToHex(rgba.b);
-        return hex;
-    }
-    const componentToHex = (c: number) => {
-        const hex = c.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
     }
 </script>
 
