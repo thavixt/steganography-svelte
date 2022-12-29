@@ -60,7 +60,7 @@ function createNotificationStore() {
 function getErrorMessage(error: StegoError | string) {
     switch (error) {
         case StegoError.PARAMS_MISSING:
-            return 'At least on input image or text is missing!';
+            return 'An input image or text is was not found';
         case StegoError.NOTHING_TO_DL:
             return 'No image or text output present to download';
         case StegoError.READ_FILE:
